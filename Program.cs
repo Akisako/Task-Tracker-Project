@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Newtonsoft.Json;
 using TaskTrackerJSON;
 
 namespace TaskTracker
@@ -6,15 +7,14 @@ namespace TaskTracker
     internal class TaskTracker
     {
         static bool TrackerOn {get; set;}
-        static List<TaskTrackerJSON.TaskTrackerData> _data = new List<TaskTrackerJSON.TaskTrackerData>();
+        static List<TaskTrackerData> _data = new List<TaskTrackerData>();
         static void Main(string[] args)
-        {   
-
+        {
+            
             while(TrackerOn == false)
             {
-                // gets data from Json file
-                var json_data = TaskTrackerData.ReadJsonData();
-                StoreJsonData(json_data);
+                
+                InitializeData(); // gets data from Json file and stores it into _data
 
                 Console.WriteLine("___TASK TRACKER___");
                 Console.Write("What do you wish to do: ");
@@ -44,6 +44,8 @@ namespace TaskTracker
             }
         }
 
+
+// LOGIC ______________________________________________
         static void AddTask()
         {
             Console.WriteLine("What Task do you wish to add?");
@@ -57,6 +59,7 @@ namespace TaskTracker
         static void DeleteTask()
         {
             Console.Write("Please input the ID of the task you wish to delete: ");
+
             var _delInput = Console.ReadLine();
             int _delInput_index = Convert.ToInt32(_delInput);
             
@@ -120,7 +123,7 @@ namespace TaskTracker
                         Console.WriteLine("There are no done tasks currently.");
                         break;
                     }
-                    foreach (TaskTrackerJSON.TaskTrackerData element in _data)
+                    foreach (TaskTrackerData element in _data)
                     {
                         if (element.IsDone == true)
                             Console.WriteLine($"{element.ID}. {element.Content}");
@@ -142,7 +145,7 @@ namespace TaskTracker
                         Console.WriteLine("There are no uncomplete tasks currently.");
                         break;
                     }
-                    foreach (TaskTrackerJSON.TaskTrackerData element in _data)
+                    foreach (TaskTrackerData element in _data)
                     {
                         if(element.IsDone == false)
                             Console.WriteLine($"{element.ID}. {element.Content}");
@@ -164,7 +167,7 @@ namespace TaskTracker
                         Console.WriteLine("There are no tasks in progress currently.");
                         break;
                     }
-                    foreach (TaskTrackerJSON.TaskTrackerData element in _data)
+                    foreach (TaskTrackerData element in _data)
                     {
                         if(element.InProgress == true)
                             Console.WriteLine($"{element.ID}. {element.Content}");
@@ -179,7 +182,7 @@ namespace TaskTracker
                         break;
                     }
 
-                    foreach (TaskTrackerJSON.TaskTrackerData element in _data)
+                    foreach (TaskTrackerData element in _data)
                     {
                         Console.WriteLine($"{element.ID}. {element.Content}");
                     }
@@ -187,20 +190,23 @@ namespace TaskTracker
             }
         }
 
+// DATA HANDLING ______________________________________________
         static void HandleEditJson()
         {
-            foreach(TaskTrackerData elem in _data)
-            {
-                TaskTrackerData.EditJsonData(elem);
-            }
-
-            
+                TaskTrackerData.EditJsonData(_data);  
         }
 
-        public static void StoreJsonData(TaskTrackerData data)
+        public static void StoreJsonData(List<TaskTrackerData> data)
         {
-            _data.Add(data);
+            foreach (var elem in data)
+                _data.Add(elem);
         }
 
+        private static void InitializeData()
+        {
+                List<TaskTrackerData> STORED_DATA = new List<TaskTrackerData>();
+                TaskTrackerData.ReadJsonData(STORED_DATA);
+                StoreJsonData(STORED_DATA);
+        }
     }
 }
