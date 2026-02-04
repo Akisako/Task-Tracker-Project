@@ -10,35 +10,33 @@ namespace TaskTrackerJSON
         public bool InProgress {get; set;}
         public bool IsDone {get; set;}
 
-        public static void EditJsonData(TaskTrackerData data)
+        public static void EditJsonData(List<TaskTrackerData> data)
         {
             string _fileName = "TaskTracker.json";
             string _jsonString = JsonSerializer.Serialize(data);
 
-            if (data.ID == 1) // will overwrite the data
-                File.WriteAllText(_fileName, "["+_jsonString+"]"); 
-
-            var file_data = ReadJsonData();
-            if (file_data.ID != data.ID)
-                File.AppendAllText(_fileName, ",["+_jsonString+"]");
-                
-            Console.WriteLine(File.ReadAllText(_fileName));
+            if (!File.Exists(_fileName))
+                File.WriteAllText(_fileName, _jsonString);
+            else
+            {
+                File.AppendAllText(_fileName, _jsonString);
+            }
         }
 
-        public static TaskTrackerData ReadJsonData()
+        public static List<TaskTrackerData> ReadJsonData(List<TaskTrackerData> data)
         {
             string _fileName = "TaskTracker.json";
-            string _jsonString = File.ReadAllText(_fileName);
-            if (_jsonString.Length == 0)    
-                return new TaskTrackerData(); // breaks my code lmao
-
-            TaskTrackerData data = JsonSerializer.Deserialize<TaskTrackerData>(_jsonString)!;
+            if (!File.Exists(_fileName))
+                return null;
             
+            string _jsonString = File.ReadAllText(_fileName);
+            var _jsonData = JsonSerializer.Deserialize<List<TaskTrackerData>>(_jsonString);
+
+            if (_jsonData != null)
+                foreach(var element in _jsonData)
+                    data.Add(element);
+
             return data;
         }
-
-        // TODO : 
-        // - Make program read from Json file to store tasks
-        // - Make program append instead of replacing data stored in Json file
     }
 }
