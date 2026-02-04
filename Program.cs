@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using TaskTrackerJSON;
 
 namespace TaskTracker
@@ -12,6 +12,10 @@ namespace TaskTracker
 
             while(TrackerOn == false)
             {
+                // gets data from Json file
+                var json_data = TaskTrackerData.ReadJsonData();
+                StoreJsonData(json_data);
+
                 Console.WriteLine("___TASK TRACKER___");
                 Console.Write("What do you wish to do: ");
                 var input = Console.ReadLine();
@@ -191,6 +195,11 @@ namespace TaskTracker
             }
 
             
+        }
+
+        public static void StoreJsonData(TaskTrackerData data)
+        {
+            _data.Add(data);
         }
 
     }
