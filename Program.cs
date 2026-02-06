@@ -10,11 +10,14 @@ namespace TaskTracker
         static List<TaskTrackerData> _data = new List<TaskTrackerData>();
         static void Main(string[] args)
         {
+            InitializeData(); // gets data from Json file and stores it into _data
             
             while(TrackerOn == false)
             {
-                
-                InitializeData(); // gets data from Json file and stores it into _data
+                // actualises data
+                ReloadTasks(_data);
+                HandleEditJson();
+
 
                 Console.WriteLine("___TASK TRACKER___");
                 Console.Write("What do you wish to do: ");
@@ -51,7 +54,7 @@ namespace TaskTracker
             Console.WriteLine("What Task do you wish to add?");
             var _addedTask = Console.ReadLine();
 
-            _data.Add(new TaskTrackerJSON.TaskTrackerData {ID = _data.Count+1, Content = _addedTask, InProgress = false, IsDone = false});
+            _data.Add(new TaskTrackerData {ID = _data.Count+1, Content = _addedTask, InProgress = false, IsDone = false});
 
             HandleEditJson();
         }
@@ -63,10 +66,12 @@ namespace TaskTracker
             var _delInput = Console.ReadLine();
             int _delInput_index = Convert.ToInt32(_delInput);
             
-            var _taskRemoved = _data.Find(x => x.ID == _delInput_index).Content;
+            var _taskRemoved = _data.Find(x => x.ID == _delInput_index);
 
-            Console.WriteLine($"Removed task : {_taskRemoved}");
-            _data.RemoveAt(_delInput_index-1);
+            Console.WriteLine($"Removed task : {_taskRemoved.Content}");
+            _data.Remove(_taskRemoved);
+
+            HandleEditJson();
         }
 
         static void UpdateTask()
@@ -92,7 +97,7 @@ namespace TaskTracker
                 {
                     case "yes":
                         Console.WriteLine($"Removed task : {_taskUpdated}");
-                        _data.RemoveAt(_upInput_index-1);
+                        _data.Remove(_taskUpdated);
                         break;
                     case "no":
                         break;
@@ -102,6 +107,9 @@ namespace TaskTracker
             {
                 Console.WriteLine("Invalid Input");
             }
+
+
+            HandleEditJson();
         }
 
         static void ListTasks(string _choice)
@@ -207,6 +215,25 @@ namespace TaskTracker
                 List<TaskTrackerData> STORED_DATA = new List<TaskTrackerData>();
                 TaskTrackerData.ReadJsonData(STORED_DATA);
                 StoreJsonData(STORED_DATA);
+        }
+
+        private static void ReloadTasks(List<TaskTrackerData> _tasks)
+        {
+            foreach(TaskTrackerData elem in _tasks)
+            {
+                foreach(TaskTrackerData nextElem in _tasks)
+                {
+                    if(elem.ID == nextElem.ID && elem.Content == nextElem.Content)
+                        continue;
+                    
+                    if(elem.ID == nextElem.ID && elem.Content != nextElem.Content)
+                        nextElem.ID ++;
+
+                    if (elem.ID+1 < nextElem.ID)
+                        nextElem.ID --;
+                }
+            }
+
         }
     }
 }
